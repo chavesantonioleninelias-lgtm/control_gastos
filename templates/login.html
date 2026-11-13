@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block content %}
+<div class="flex min-h-[80vh] items-center justify-center">
+  <div class="w-full max-w-md animate-up">
+    <div class="mb-8 text-center">
+      <div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-300/60">
+        <svg class="i !h-8 !w-8"><use href="#i-cash"/></svg>
+      </div>
+      <h1 class="mt-5 text-3xl font-extrabold tracking-tight text-slate-900">Control de Gastos</h1>
+      <p class="mt-2 text-sm text-slate-500">Bienvenido, inicia sesión para continuar</p>
+    </div>
+
+    <form id="login" method="post" class="card space-y-5 p-7">
+      <div>
+        <label for="usuario" class="mb-1.5 block text-sm font-medium text-slate-700">Usuario</label>
+        <div class="group relative">
+          <svg class="i absolute left-4 top-3.5 text-slate-400 transition group-focus-within:text-indigo-600"><use href="#i-user"/></svg>
+          <input id="usuario" name="usuario" required autofocus autocomplete="username" placeholder="Tu usuario" class="field">
+        </div>
+      </div>
+
+      <div>
+        <label for="clave" class="mb-1.5 block text-sm font-medium text-slate-700">Clave</label>
+        <div class="group relative">
+          <svg class="i absolute left-4 top-3.5 text-slate-400 transition group-focus-within:text-indigo-600"><use href="#i-lock"/></svg>
+          <input id="clave" name="clave" type="password" required autocomplete="current-password" placeholder="••••••••" class="field pr-12">
+          <button type="button" id="ver" class="absolute right-3 top-2.5 rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-indigo-600" aria-label="Mostrar clave">
+            <svg class="i"><use href="#i-eye"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button id="go" class="btn w-full">Ingresar</button>
+    </form>
+    <p class="mt-6 text-center text-xs text-slate-400">Panel interno · acceso restringido</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const clave = document.getElementById('clave');
+  document.getElementById('ver').onclick = () => clave.type = clave.type === 'password' ? 'text' : 'password';
+  document.getElementById('login').addEventListener('submit', () => {
+    const b = document.getElementById('go');
+    b.classList.add('pointer-events-none', 'opacity-80');
+    b.innerHTML = '<span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span> Verificando…';
+  });
+</script>
+{% endblock %}

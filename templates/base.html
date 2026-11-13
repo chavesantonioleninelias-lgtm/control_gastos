@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Panel{% endblock %} · Gastos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      keyframes: {
+        up: { '0%': { opacity: 0, transform: 'translateY(16px)' }, '100%': { opacity: 1, transform: 'none' } },
+        blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '50%': { transform: 'translate(40px,-50px) scale(1.15)' } },
+        toast: { '0%': { opacity: 0, transform: 'translateX(40px)' }, '100%': { opacity: 1, transform: 'none' } },
+        bar: { '0%': { width: '100%' }, '100%': { width: '0%' } }
+      },
+      animation: { up: 'up .6s ease both', blob: 'blob 14s ease-in-out infinite', toast: 'toast .4s ease both' }
+    } } }
+  </script>
+  <style type="text/tailwindcss">
+    @layer components {
+      .card  { @apply bg-white/80 backdrop-blur-xl border border-white shadow-xl shadow-indigo-100/60 ring-1 ring-slate-200/60 rounded-2xl; }
+      .field { @apply w-full rounded-xl border border-slate-200 bg-white/80 py-3 pl-11 pr-4 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100; }
+      .btn   { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-300/60 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-300/70 active:translate-y-0 active:scale-[.98] disabled:opacity-40 disabled:pointer-events-none; }
+      .chip  { @apply rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 active:scale-95; }
+    }
+    .i { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-800 antialiased min-h-screen relative overflow-x-hidden">
+
+  <!-- Íconos reutilizables -->
+  <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.1a7.5 7.5 0 0115 0"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><path d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4.5v15m7.5-7.5h-15"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></symbol>
+  </svg>
+
+  <!-- Fondo decorativo -->
+  <div class="pointer-events-none fixed inset-0 -z-10">
+    <div class="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-indigo-300/40 blur-3xl animate-blob"></div>
+    <div class="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-fuchsia-300/30 blur-3xl animate-blob" style="animation-delay:-5s"></div>
+    <div class="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-sky-300/30 blur-3xl animate-blob" style="animation-delay:-9s"></div>
+  </div>
+
+  {% if session.usuario %}
+  <header class="sticky top-0 z-40 border-b border-white/60 bg-white/70 backdrop-blur-xl">
+    <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+      <div class="flex items-center gap-5">
+        <a href="{{ url_for('gastos.registro') }}" class="flex items-center gap-2.5 font-bold tracking-tight text-slate-900">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-300/60">
+            <svg class="i"><use href="#i-cash"/></svg>
+          </span>
+          <span class="hidden sm:block">Gastos</span>
+        </a>
+        {% set ep = request.endpoint %}
+        <nav class="flex gap-1 rounded-xl bg-slate-100/80 p-1 text-sm">
+          <a href="{{ url_for('gastos.registro') }}"
+             class="rounded-lg px-3.5 py-1.5 transition {{ 'bg-white text-indigo-700 font-semibold shadow-sm' if ep == 'gastos.registro' else 'text-slate-500 hover:text-slate-900' }}">Registro</a>
+          <a href="{{ url_for('gastos.reportes') }}"
+             class="rounded-lg px-3.5 py-1.5 transition {{ 'bg-white text-indigo-700 font-semibold shadow-sm' if ep == 'gastos.reportes' else 'text-slate-500 hover:text-slate-900' }}">Reportes</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 sm:flex">
+          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>{{ session.usuario }}
+        </span>
+        <form action="{{ url_for('auth.logout') }}" method="post">
+          <button class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-rose-50 hover:text-rose-600">
+            <svg class="i"><use href="#i-out"/></svg><span class="hidden sm:inline">Salir</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+  {% endif %}
+
+  <!-- Notificaciones -->
+  <div class="fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-sm space-y-3">
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in mensajes %}
+      <div class="toast animate-toast relative cursor-pointer overflow-hidden rounded-xl bg-white p-4 pr-10 shadow-2xl ring-1 ring-slate-200" data-ms="{{ 4500 if cat == 'success' else 6500 }}">
+        <div class="flex items-start gap-3">
+          <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-white {{ 'bg-emerald-500' if cat == 'success' else 'bg-rose-500' }}">
+            <svg class="i !h-4 !w-4" style="stroke-width:2.5"><use href="#{{ 'i-ok' if cat == 'success' else 'i-x' }}"/></svg>
+          </span>
+          <p class="pt-0.5 text-sm font-medium text-slate-700">{{ msg }}</p>
+        </div>
+        <span class="tbar absolute bottom-0 left-0 h-1 {{ 'bg-emerald-500' if cat == 'success' else 'bg-rose-500' }}"></span>
+      </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    // Toasts: barra de progreso + autocierre
+    document.querySelectorAll('.toast').forEach(t => {
+      const ms = +t.dataset.ms, bar = t.querySelector('.tbar');
+      bar.style.animation = `bar ${ms}ms linear forwards`;
+      const close = () => { t.style.transition = 'all .3s'; t.style.opacity = 0; t.style.transform = 'translateX(30px)'; setTimeout(() => t.remove(), 300); };
+      setTimeout(close, ms); t.addEventListener('click', close);
+    });
+    // Números que cuentan hacia arriba
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const end = parseFloat(el.dataset.count), money = el.hasAttribute('data-money');
+      const fmt = v => money ? 'S/ ' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : Math.round(v);
+      const t0 = performance.now();
+      (function f(t) { const p = Math.min((t - t0) / 900, 1); el.textContent = fmt(end * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); })(t0);
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
